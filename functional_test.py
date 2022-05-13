@@ -9,6 +9,8 @@ children = ['one', 'two', 'three']
 sig = ''
 X = b''
 
+
+# 创建文件夹用于区分和储存不同用户的信息
 def create_dirs():
     if os.path.exists("musig2-test"):
         shutil.rmtree("musig2-test")
@@ -17,6 +19,8 @@ def create_dirs():
         os.mkdir(f"musig2-test/{child}")
         musig2.write_bytes("hello world\n".encode(), f"musig2-test/{child}/message")
 
+
+# 生成公钥密钥
 def gen_pub_keys():
     keys = b''
     for child in children:
@@ -54,7 +58,7 @@ def do_sign():
         stdout = stdout.strip().split(b'\n')
         s_value = stdout[-1]
         global X
-        X = stdout[-5].decode()
+        X = stdout[-1].decode()
         s_values += s_value + b'\n'
     for child in children:
         musig2.write_bytes(s_values, f"musig2-test/{child}/s_values")
@@ -94,6 +98,8 @@ def main():
 
     create_dirs()
     gen_pub_keys()
+
+
     gen_nonces()
     do_sign()
     aggregate_signatures()
@@ -107,7 +113,7 @@ def main():
     aggregate_signatures()
     do_verify()
 
-    cleanup()
+    # cleanup()
 
 
 if __name__ == "__main__":

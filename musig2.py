@@ -4,6 +4,8 @@ import secrets
 import sys
 from typing import List, Optional, Tuple
 
+import pprint
+
 # secp256k1 finite field order (p) and group order (n)
 p = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
 n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
@@ -163,6 +165,13 @@ def get_message(filename: str) -> bytes:
         quit()
     return message
 
+def remove_single_use_files(children: list[str]):
+    for child in children:
+        if os.path.exists(f"ms2test/{child}/s_values"):
+            os.remove(f"ms2test/{child}/s_values")
+        if os.path.exists(f"ms2test/{child}/public_nonces"):
+            os.remove(f"ms2test/{child}/public_nonces")
+
 ########## HELPER FUNCTIONS ##########
 
 # This uses BIP-340's tagged hash, SHA256(SHA256(tag) || SHA256(tag) || x)
@@ -275,12 +284,10 @@ def verify_sig(aggregate_key_bytes: bytes, msg: bytes, R_bytes: bytes, s: int) -
     return left == right
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Available commands: keygen, noncegen, aggregatekeys, sign, aggregatesignature, verify")
-        quit()
-
-    command = sys.argv[1]
+def main(command: str):
+    # if len(sys.argv) < 2:
+    #     print("Available commands: keygen, noncegen, aggregatekeys, sign, aggregatesignature, verify")
+    #     quit()
 
     # Generate a public + private keypair
     if command == "keygen":
@@ -429,5 +436,4 @@ def main():
         print("Unknown command.")
         quit()
 
-if __name__ == "__main__":
-    main()
+
