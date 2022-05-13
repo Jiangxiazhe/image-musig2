@@ -1,6 +1,6 @@
 import os
 import shutil
-
+import cv2
 import musig2 as m2
 
 children = ['one', 'two']
@@ -10,13 +10,16 @@ X = b''
 
 
 # 创建文件夹用于区分和储存不同用户的信息
-def create_dirs():
+def create_dirs(img_path: str):
     if os.path.exists("ms2test"):
         shutil.rmtree("ms2test")
     os.mkdir("ms2test")
+    img = cv2.imread(img_path)
+    imbytes = img.tobytes()
     for child in children:
         os.mkdir(f"ms2test/{child}")
-        m2.write_bytes("hello world\n".encode(), f"ms2test/{child}/message")
+        m2.write_bytes(imbytes, f"ms2test/{child}/message")
+        # m2.write_bytes("hello world\n".encode(), f"ms2test/{child}/message")
 
 
 # 生成公钥密钥
@@ -140,7 +143,7 @@ def aggresignalture(child: str):
 def verify(child: str):
     public_keys_list = m2.read_bytes_from_hex_list(f"ms2test/{child}/public_keys")
     pubkey, _ = m2.aggregate_public_keys(public_keys_list, None)
-    pubkey_bytes = m2.bytes_from_point(pubkey)
+    pubkey_bytes = m2.bytes_from_point(pubkey)  # 聚合公钥的点
     print(f"pubkey_bytes: \n{pubkey_bytes.hex()}")
     if len(pubkey_bytes) != 32:
         print("Error: length of public key must be 32 bytes")
@@ -175,13 +178,13 @@ def sign_test():
     print(f"Hex-encoded signature:\n{sig}")
 
 
-def verify_test():
-    child = "one"
-    verify(child)
+def verify_test(obj: str):
+    verify(obj)
 
 
 if __name__ == "__main__":
-    create_dirs()
+    img_path = 'a.PNG'
+    create_dirs(img_path)
     sign_test()
-    verify_test()
+    verify_test('one')
     # m2.remove_single_use_files(children)
